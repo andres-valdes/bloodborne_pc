@@ -213,6 +213,20 @@ else
     bash build.sh
     probe=${BB_PROBE:-out/bb-probe}  # BB_PROBE: a wrapper (gdb) around it
 fi
+# Seamless co-op (BB_BBSC=1, launcher: Online; the module gpu/bbsc, BBSC) plays online. A BBSC server
+# (BB_BBSC_SERVER=host) runs everything at one address: shadNet, its summon broker and the game
+# server, which also relays BBSC's own packets. BBSC finds the saves in the user folder, writes its
+# logs and journals beside them, and sends the seamless summon headers itself (not the online module).
+if [[ ${BB_BBSC:-0} == 1 ]]; then
+    export BB_ONLINE=1
+    if [[ -n ${BB_BBSC_SERVER:-} ]]; then
+        export BB_SHADNET_SERVER=$BB_BBSC_SERVER:31313 BB_SHADNET_WEBAPI=http://$BB_BBSC_SERVER:31315
+        export BB_COMMUNITY_SERVER=http://$BB_BBSC_SERVER:20443
+    fi
+    export BBSC_USER_DIR=${BB_USER_DIR:-$data/user}
+    export BBSC_DATA_DIR=${BBSC_DATA_DIR:-$BBSC_USER_DIR/bbsc}
+    export SHADPS4_BLOODBORNE_SEAMLESS_COOP=0
+fi
 # Online play (BB_ONLINE=1, launcher: Online; the online module gpu/bbnet): the game's own server
 # goes to the community server, summon signs to the shadNet WebAPI (scripts/online.py).
 if [[ ${BB_ONLINE:-0} == 1 && -f scripts/online.py ]]; then

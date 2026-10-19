@@ -23,12 +23,16 @@ let
   # choose NVIDIA's library (the bridge is still needed).
   dlssFiles = [ "out/libbbport_dlss.so" "out/NVIDIA-DLSS-LICENSE.txt" "out/gpu/libbbnet.so" ];
   isNgx = rel: lib.hasPrefix "out/libnvidia-ngx-dlss.so." rel;
+  # Seamless co-op (a build with xbyak): the module and the notices BBSC requires beside it.
+  bbscFiles = [ "out/gpu/bbsc" "out/gpu/bbsc/libbbsc.so" "out/gpu/bbsc/LICENSE.txt"
+                "out/gpu/bbsc/NOTICE.txt" "out/gpu/bbsc/SUPPORTERS.txt" ];
   src = builtins.path {
     name = "bbport-src";
     path = root;
     filter = path: type:
       let rel = lib.removePrefix (toString root + "/") (toString path);
-      in builtins.elem rel wanted || builtins.elem rel dlssFiles || isNgx rel
+      in builtins.elem rel wanted || builtins.elem rel dlssFiles || builtins.elem rel bbscFiles
+        || isNgx rel
         || lib.any (dir: lib.hasPrefix (dir + "/") rel) assetDirs;
   };
   python = pkgs.python3.withPackages (ps: [ ps.pygobject3 ]);
@@ -188,6 +192,12 @@ pkgs.stdenv.mkDerivation {
     # The online module (gpu/bbnet), when the build has it.
     if [ -f out/gpu/libbbnet.so ]; then
       install -Dm755 out/gpu/libbbnet.so $d/bin/gpu/libbbnet.so
+    fi
+    # The seamless co-op module (gpu/bbsc), when the build has it.
+    if [ -f out/gpu/bbsc/libbbsc.so ]; then
+      install -Dm755 out/gpu/bbsc/libbbsc.so $d/bin/gpu/bbsc/libbbsc.so
+      install -m644 out/gpu/bbsc/LICENSE.txt out/gpu/bbsc/NOTICE.txt out/gpu/bbsc/SUPPORTERS.txt \
+        $d/bin/gpu/bbsc/
     fi
     if [ -f out/libbbport_dlss.so ]; then
       install -m755 out/libbbport_dlss.so $d/bin/libbbport_dlss.so

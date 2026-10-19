@@ -26,7 +26,7 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gio, GLib, Gtk  # noqa: E402
+from gi.repository import Adw, Gio, GLib, GObject, Gtk  # noqa: E402
 
 PORT_DIR = Path(__file__).resolve().parent.parent  # native_probe (or the package's copy)
 sys.path.insert(0, str(PORT_DIR / 'scripts'))
@@ -155,6 +155,10 @@ DEFAULTS = {
     "online_npid": "",
     "online_password": "",
     "online_upnp": True,
+    # Seamless co-op (Online page, the module gpu/bbsc): off by default; a BBSC server's address
+    # replaces the addresses above.
+    "bbsc": False,
+    "bbsc_server": "",
 }
 
 # bbport.ini keys the launcher edits; the rest of the file is kept.
@@ -287,6 +291,11 @@ def online_module():
     return (PORT_DIR / ("bin" if PACKAGED else "out") / "gpu" / "libbbnet.so").is_file()
 
 
+def bbsc_module():
+    """The seamless co-op module beside the GPU library (gpu/bbsc; a build without xbyak has none)."""
+    return (PORT_DIR / ("bin" if PACKAGED else "out") / "gpu" / "bbsc" / "libbbsc.so").is_file()
+
+
 def game_environment(s):
     """Environment for run.sh from the launcher settings."""
     env = dict(os.environ)
@@ -353,6 +362,10 @@ def game_environment(s):
         env["BB_SHADNET_PASSWORD"] = s["online_password"]
         env["BB_UPNP"] = "1" if s["online_upnp"] else "0"
         env["BB_COMMUNITY_SERVER"] = community
+        if s.get("bbsc") and bbsc_module():
+            env["BB_BBSC"] = "1"
+            if s.get("bbsc_server", "").strip():
+                env["BB_BBSC_SERVER"] = s["bbsc_server"].strip()
     for item in s["extra_env"].split():
         if "=" in item:
             key, value = item.split("=", 1)
@@ -1044,6 +1057,8 @@ class LauncherWindow(Adw.ApplicationWindow):
         s["online_npid"] = self.npid_row.get_text().strip()
         s["online_password"] = self.password_row.get_text()
         s["online_upnp"] = self.upnp_row.get_active()
+        s["bbsc"] = self.bbsc_row.get_active()
+        s["bbsc_server"] = self.bbsc_server_row.get_text().strip()
         self.save_mod_profile()
         self.save_patch_profile()
         save_settings(s)
@@ -1223,6 +1238,25 @@ class LauncherWindow(Adw.ApplicationWindow):
         account.add(self.npid_row)
         account.add(self.password_row)
         page.add(account)
+
+        seamless = Adw.PreferencesGroup(
+            title=tr("Бесшовный кооператив (BBSC)"),
+            description=tr("Один сеанс на всю игру: смерти, фонари, боссы и Сон охотника, до пяти "
+                           "охотников. Адрес сервера BBSC (без порта) даёт его владелец; он "
+                           "заменяет адреса выше"))
+        self.bbsc_row = Adw.SwitchRow(title=tr("Бесшовный кооператив"),
+                                      subtitle=tr("Выключено: обычная игра по сети"),
+                                      active=s["bbsc"])
+        self.bbsc_server_row = Adw.EntryRow(title=tr("Сервер BBSC"), text=s["bbsc_server"])
+        seamless.add(self.bbsc_row)
+        seamless.add(self.bbsc_server_row)
+        if bbsc_module():
+            self.online_row.bind_property("active", self.bbsc_row, "sensitive",
+                                          GObject.BindingFlags.SYNC_CREATE)
+        else:
+            self.bbsc_row.set_sensitive(False)
+            self.bbsc_row.set_subtitle(tr("Эта сборка без модуля кооператива (libbbsc.so)"))
+        page.add(seamless)
 
         connection = Adw.PreferencesGroup(
             title=tr("Соединение"),

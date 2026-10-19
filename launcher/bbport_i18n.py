@@ -229,6 +229,13 @@ EN = {
     'Учётная запись для игры онлайн указана, но «Играть онлайн» выключено': 'An online account is filled in, but “Play online” is off',
     'доступен': 'reachable',
     'недоступен': 'not reachable',
+    # Seamless co-op (BBSC)
+    'Бесшовный кооператив (BBSC)': 'Seamless co-op (BBSC)',
+    'Один сеанс на всю игру: смерти, фонари, боссы и Сон охотника, до пяти охотников. Адрес сервера BBSC (без порта) даёт его владелец; он заменяет адреса выше': "One session for the whole game: deaths, lamps, bosses and the Hunter's Dream, up to five hunters. The BBSC server's address (no port) comes from the person who runs it; it replaces the addresses above",
+    'Бесшовный кооператив': 'Seamless co-op',
+    'Выключено: обычная игра по сети': "Off: the game's own online play",
+    'Сервер BBSC': 'BBSC server',
+    'Эта сборка без модуля кооператива (libbbsc.so)': 'This build has no seamless co-op module (libbbsc.so)',
     "DLSS: библиотека NVIDIA": "DLSS: NVIDIA's library",
     "Выбрать файл…": "Choose a file…",
     "Убрать выбранную": "Remove the chosen one",
