@@ -22,6 +22,7 @@ int main(void) {
         "2rsFmlGWleQ#R#S",  /* sceNpCheckNpAvailability */
         "10t3e5+JPnU#P#Q",  /* sceNpMatching2Initialize */
         "3KOuC4RmZZU#T#U",  /* sceNpSignalingInitialize */
+        "T6tnM1Uti4g#S#T",  /* sceNpLookupNpId */
     };
     static const char *const local="XbkjbobZlCY#l#m"; /* sceNpTrophyCreateContext */
     const char *path="out/gpu/libbbnet.so";
