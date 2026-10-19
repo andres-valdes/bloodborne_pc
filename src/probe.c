@@ -27,7 +27,7 @@
 #include <sys/uio.h>
 #endif
 
-typedef struct { uint64_t address, size, flags; } Segment;
+typedef RuntimeSegment Segment;
 typedef struct { uint64_t target, kind, value, addend; } Reloc;
 static char (*names)[128];
 static uint64_t import_count;
@@ -542,6 +542,7 @@ int main(int argc, char **argv) {
     }
     if (patch_file) apply_patches(patch_file, segments, ns, relocs, nr);
     if (!cpu_only) bbgpu_patch_image(image, size);
+    if (runtime_bbsc_enabled()) runtime_bbsc_start(image, segments, ns);
     protect(traps, round_page((import_count + 1) * 32), 5);
     protect(image, round_page(size), 0);
     int executable_entry = 0;

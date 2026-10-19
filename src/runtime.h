@@ -21,6 +21,9 @@ void runtime_mutex_report(void);
 uintptr_t runtime_memory_resolve(const char *name);
 void runtime_memory_report(void);
 int runtime_memory_is_mapped(uintptr_t address, uint64_t size);
+/* The guest mapping or gap around address, and a mapping's guest protection (SCE_KERNEL_PROT_*). */
+int runtime_memory_region(uintptr_t address, uintptr_t *start, uintptr_t *end, int *mapped);
+int runtime_memory_vma_info(uintptr_t address, int *prot, int *type, uintptr_t *end);
 /* The CPU is about to write the range outside guest code (a file read): tells the GPU side. */
 void runtime_memory_note_write(uintptr_t address, uint64_t size);
 void runtime_memory_note_cpu_write(uintptr_t address, uint64_t size);
@@ -63,6 +66,11 @@ void runtime_net_configure(const char *app0, const char *serial, const char *tit
 int runtime_net_enabled(void);
 int runtime_net_symbol(const char *symbol);
 uintptr_t runtime_net_resolve(const char *name);
+/* Seamless co-op (runtime_bbsc.c, BB_BBSC=1 with online play): BBSC is started on the relocated,
+ * patched image before its segments (ELF flags: 1 execute, 2 write, 4 read) are protected. */
+typedef struct { uint64_t address, size, flags; } RuntimeSegment;
+int runtime_bbsc_enabled(void);
+void runtime_bbsc_start(const unsigned char *image, const RuntimeSegment *segments, uint64_t count);
 /* Guest threads for host code (the online module's NP threads); 0 or a positive errno value. */
 int32_t runtime_thread_spawn(void **thread, void *(ABI *entry)(void *), void *argument, uint64_t stack, const char *name);
 int32_t runtime_thread_join_spawned(void *thread, void **result);
