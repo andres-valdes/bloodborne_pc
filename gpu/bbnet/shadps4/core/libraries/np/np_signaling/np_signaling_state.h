@@ -176,6 +176,14 @@ struct ConnectionInfo {
     bool step_callout_armed = false;
     bool deactivate_lingering = false;
 
+    // BBSC rejoin fix (2026-10-12): the peer's connection id from its handshake packets - a new
+    // one on an established connection means the peer started over (left and came back).
+    u32 peer_conn_id = 0;
+    // Re-activated after a deactivate: established again only when the peer answers a Check
+    // (10 s, else DEAD) - a peer that had left must not keep the connection "active" forever.
+    bool revalidating = false;
+    s64 revalidate_since_us = 0;
+
     u32 echo_derived_value = 0;
 };
 
@@ -340,6 +348,9 @@ void HandleHandshakePacket(u32 from_addr, u16 from_port, const SignalingHandshak
 
 void ArmConnectTimeoutLocked(OrbisNpSignalingConnectionId conn_id);
 void ClearLingerAndTimeoutLocked(OrbisNpSignalingConnectionId conn_id);
+// BBSC rejoin fix: the game activates a connection it deactivated before - check the peer is
+// still there before it counts as established again.
+void BeginRevalidationLocked(OrbisNpSignalingConnectionId conn_id);
 
 void SendActivationRequestLocked(const ConnectionInfo& ci);
 

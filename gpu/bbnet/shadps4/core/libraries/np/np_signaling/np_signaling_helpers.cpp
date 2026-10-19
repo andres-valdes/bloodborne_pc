@@ -12,6 +12,7 @@
 #include "core/libraries/kernel/memory.h"
 #include "core/libraries/network/net.h"
 #include "core/libraries/network/net_util.h"
+#include "core/libraries/network/sockets.h"
 #include "core/libraries/np/np_common.h"
 #include "core/libraries/np/np_error.h"
 #include "core/libraries/np/np_signaling/np_signaling_helpers.h"
@@ -223,6 +224,7 @@ static void HandleStunEcho(s32 ctx_id, const StunEcho& echo) {
 
     auto* netinfo = Common::Singleton<NetUtil::NetUtilInternal>::Instance();
     netinfo->SetExternalIp(echo.ext_ip);
+    Net::P2PRelaySetSelfEndpoint(echo.ext_ip, echo.ext_port);
 
     ctx.stun_cv.notify_all();
 }

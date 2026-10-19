@@ -679,6 +679,7 @@ void SetMmShadNetClient(std::shared_ptr<ShadNet::ShadNetClient> client,
         NpSignaling::Stubs::SetPeerResolver(nullptr);
         NpSignaling::Stubs::SetMatching2Enabled(false);
         NpSignaling::Stubs::SetMmServerEndpoint(0, 0);
+        Net::P2PRelaySetServer(0);
         StopMatching2HandshakeThread();
         return;
     }
@@ -696,6 +697,8 @@ void SetMmShadNetClient(std::shared_ptr<ShadNet::ShadNetClient> client,
     NpSignaling::Stubs::SetPeerResolver(matching2_enabled ? RequestSignalingInfos : nullptr);
     NpSignaling::Stubs::SetMatching2Enabled(matching2_enabled);
     NpSignaling::Stubs::SetMmServerEndpoint(server_addr, server_udp_port);
+    // BBSC relay fallback: the game server's UDP relay runs on the shadNet server's address.
+    Net::P2PRelaySetServer(matching2_enabled ? server_addr : 0);
     if (matching2_enabled) {
         StartMatching2HandshakeThread();
     } else {
@@ -1235,6 +1238,7 @@ bool RequestSignalingInfos(std::string_view target_online_id, u32* out_addr, u16
     }
     *out_addr = addr_nbo;
     *out_port = Libraries::Net::sceNetHtons(port_host);
+    Net::P2PRelayRememberPeer(target_online_id, *out_addr, *out_port);
     LOG_DEBUG(Lib_NpMatching2, "'{}' -> {}:{}", target_online_id, addr_str, port_host);
     return true;
 }
