@@ -1,0 +1,7 @@
+Vendored from https://github.com/andres-valdes/BBSC commit 686ea7b1bb8ea4422c46785b9d227e4bda9e4295 (GPL-2.0-or-later),
+a fork of https://github.com/Classmg22/BBSC (Bloodborne Seamless Co-op) that adds the mod's Linux build (libbbsc.so,
+bbsc_attach); its changes are offered upstream.
+Files: what emulator/mod/build-mod.sh compiles and includes, at their paths under emulator/ (mod/, src/), and LICENSE,
+NOTICE.md and SUPPORTERS.txt from its root, which BBSC requires next to the library as LICENSE.txt, NOTICE.txt and
+SUPPORTERS.txt (CMakeLists.txt puts them there).
+No local changes: changes go to BBSC, and these files are copied again.
