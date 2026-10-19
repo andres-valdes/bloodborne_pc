@@ -358,6 +358,16 @@ from The Hunter's Dream, bells and summons go through a shadNet server (`srv.sha
 default) with a shadNet account (Online ID and password). Offline the module is never loaded; a
 build without it plays offline only.
 
+**Seamless co-op (BBSC).** [BBSC](https://github.com/Classmg22/BBSC) keeps one co-op session through
+deaths, lamps, area changes, bosses and the Hunter's Dream, for up to five hunters. A separate module,
+`out/gpu/bbsc/libbbsc.so` (`gpu/bbsc`: BBSC's mod, vendored as `gpu/bbsc/VENDOR.txt` says), built
+when xbyak is there (`shell.nix`); the runtime starts it before the game runs, only for co-op. The
+launcher's *Online* page turns it on next to online play (`BB_BBSC=1`); *BBSC server*
+(`BB_BBSC_SERVER=host`) points shadNet, its summon broker and the game server at a BBSC host (BBSC's
+server package). Players on shadPS4 and on Windows with the same BBSC version play together on the same
+server. BBSC writes its log to `bbsc/logs/` in the user folder. Chalice Dungeons are not supported by
+BBSC yet.
+
 ## Repository layout
 
 | Path | Contents |
@@ -368,6 +378,7 @@ build without it plays offline only.
 | `launcher/`, `packaging/` | GTK4 launcher; Nix package and AppImage |
 | `patches/` | Community patches for Bloodborne |
 | `tools/` | Developer tools: scripted runs, A/B toggles, FSR benchmark helpers, FSR 4 shader rewrites, `fsr4cap` (FSR 4.1.1 recording/extraction) |
+| `gpu/bbsc/` | Seamless co-op module: BBSC's mod sources (`gpu/bbsc/VENDOR.txt`) |
 | `tests/` | Loader, runtime, patch and renderer tests |
 | `docs/` | Design notes and measurements ([upscaler](docs/upscaler.md), [parallel GPU](docs/parallel_gpu.md), [motion vectors](docs/motion_vectors.md), [roadmap](docs/ROADMAP.md)) |
 
