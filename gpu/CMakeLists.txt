@@ -240,3 +240,16 @@ if (BB_NET)
         message(STATUS "Online module: off (protobuf, nlohmann_json, OpenSSL, zlib or miniupnpc missing)")
     endif()
 endif()
+
+# bbport seamless co-op module (gpu/bbsc, bbsc/libbbsc.so): BBSC, started by the runtime only for
+# co-op (BB_BBSC=1); BB_BBSC=OFF leaves it out. Needs xbyak's headers (shell.nix).
+option(BB_BBSC "Build the seamless co-op module (BBSC)" ON)
+if (BB_BBSC)
+    find_path(XBYAK_INCLUDE xbyak/xbyak.h)
+    if (XBYAK_INCLUDE)
+        add_subdirectory(bbsc)
+        message(STATUS "Seamless co-op module: on (bbsc/libbbsc.so)")
+    else()
+        message(STATUS "Seamless co-op module: off (xbyak missing)")
+    endif()
+endif()
