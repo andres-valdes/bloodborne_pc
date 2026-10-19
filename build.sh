@@ -97,4 +97,7 @@ if [[ ${1:-} == --test ]]; then
     out/online-test
     "$CC" -std=c11 -D_GNU_SOURCE -O2 -g -Wall -Wextra -Werror -I. -Isrc tests/test_content.c src/runtime_content.c -o out/content-test
     out/content-test
+    "$CC" -std=c11 -O2 -g -Wall -Wextra -Werror -shared -fPIC -I. tests/bbsc_test_module.c -o out/bbsc-test-module.so
+    "$CC" -std=c11 -O2 -g -Wall -Wextra -Werror -I. -Isrc tests/test_bbsc.c src/runtime_bbsc.c -ldl -o out/bbsc-test
+    out/bbsc-test
 fi
