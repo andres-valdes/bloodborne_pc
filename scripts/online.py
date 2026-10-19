@@ -29,11 +29,18 @@ COMMUNITY_API_PORT = 18671
 
 
 def community_address(value):
-    """The game server as https://host (the game picks the ports), The Hunter's Dream by default."""
+    """The game server as https://host (the game picks the ports), The Hunter's Dream by default.
+    A port given with it is kept: a BBSC host's game server answers plain HTTP on its own port
+    (http://host:20443)."""
     value = str(value or '').strip() or COMMUNITY_SERVER
     scheme, _sep, rest = value.rpartition('://')
-    host = rest.split('/')[0].split(':')[0]
-    return f'{scheme or "https"}://{host}'
+    return f'{scheme or "https"}://{rest.split("/")[0]}'
+
+
+def game_api_url(community):
+    """The game server's ss.info: on port 20443 unless the address names its own port."""
+    port = '' if ':' in community.split('://', 1)[1] else ':20443'
+    return f'{community}{port}/bb-eu/ss.info'
 
 
 def webapi_address(server):
@@ -47,7 +54,7 @@ def webapi_setting(webapi, server, community):
     """The WebAPI field, unless it holds the game server's address (a common mix-up): then the
     shadNet server's own WebAPI."""
     webapi = str(webapi or '').strip()
-    community_host = community_address(community).split('://', 1)[1]
+    community_host = community_address(community).split('://', 1)[1].split(':')[0]
     if webapi and community_host in webapi:
         webapi = ''
     return webapi or webapi_address(server)
@@ -76,7 +83,7 @@ def write_overrides(user_dir, community, webapi):
         print(f'Co-op: addresses from {custom}', file=sys.stderr)
         return custom
     community = community_address(community)
-    host = community.split('://', 1)[1]
+    host = community.split('://', 1)[1].split(':')[0]
     overrides = {GAME_SERVER: community}
     if summon_service(webapi):
         overrides.update({f'{scheme}://{host}:{COMMUNITY_API_PORT}/summon_messenger': webapi
@@ -94,7 +101,7 @@ def check(server, webapi, community):
     """(name, address, ok, detail) for the game server, the shadNet server and its WebAPI."""
     results = []
     try:
-        with urllib.request.urlopen(community + ':20443/bb-eu/ss.info', timeout=6) as reply:
+        with urllib.request.urlopen(game_api_url(community), timeout=6) as reply:
             reply.read(64)
         results.append(('game', community, True, ''))
     except (OSError, ValueError) as error:
